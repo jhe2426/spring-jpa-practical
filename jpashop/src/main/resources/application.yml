@@ -1,0 +1,20 @@
+spring:
+  profiles:
+    active: local
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        # show_sql : 옵션은 System.out 에 하이버네이트 실행 SQL을 남긴다.
+#        show_sql: true
+        format_sql: true
+
+# org.hibernate.SQL : 옵션은 logger를 통해 하이버네이트 실행 SQL을 남긴다.
+logging:
+  level:
+    org.hibernate.SQL: debug
+    # org.hibernate.orm.jdbc.bind : Hibernate가 PreparedStatement의 ? 파라미터에 실제로 어떤 값을 바인딩하는지 로그로 출력한다.
+    # 예) where m.id = ? 에서 ?에 1이 바인딩되었다면 binding parameter (1:BIGINT) <- [1] 형태로 확인할 수 있다.
+    org.hibernate.orm.jdbc.bind: trace
