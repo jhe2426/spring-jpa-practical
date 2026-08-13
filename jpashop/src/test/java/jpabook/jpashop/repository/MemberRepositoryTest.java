@@ -21,7 +21,7 @@ class MemberRepositoryTest {
     public void testMember() throws Exception {
         // given
         Member member = new Member();
-        member.setUsername("memberA");
+        member.setName("memberA");
 
         // when
         Long savedId = memberRepository.save(member);
@@ -29,7 +29,7 @@ class MemberRepositoryTest {
 
         // then
         Assertions.assertThat(findMember.getId()).isEqualTo(member.getId());
-        Assertions.assertThat(findMember.getUsername()).isEqualTo(member.getUsername());
+        Assertions.assertThat(findMember.getName()).isEqualTo(member.getName());
 
         /*
             AssertJ의 isEqualTo()는 기본적으로 equals()와 같은 논리적 동등성(Equality)을 기준으로 값을 비교한다.
