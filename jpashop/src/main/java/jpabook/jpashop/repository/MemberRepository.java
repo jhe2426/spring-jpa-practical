@@ -1,15 +1,43 @@
 package jpabook.jpashop.repository;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceUnit;
 import jpabook.jpashop.domain.Member;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public class MemberRepository {
 
+    /*
+
+        EntityManagerFactory
+            - EntityManager를 생성하는 공장 역할을 하는 객체이다.
+            - JPA 설정 정보를 읽고 Hibernate 내부 환경과 데이터베이스 관련 설정을 초기화하면서 생성되기 때문에 생성 비용이 크다.
+            - 따라서 요청이나 트랜잭션마다 새로 생성하지 않고, 일반적으로 애플리케이션이 실행될 때 한 번 생성해서 공유한다.
+            - EntityManagerFactory는 여러 스레드에서 동시에 사용해도 안전하게 설계되어 있다.
+
+        EntityManager
+            - 영속성 컨텍스트를 통해 Entity를 관리하는 객체이다.
+            - Entity의 저장(persist), 조회(find), 삭제(remove) 등의 작업을 수행하며,
+                영속 상태의 Entity가 변경되면 변경 감지를 통해 수정 SQL도 처리한다.
+            - EntityManager는 여러 스레드에서 동시에 공유해서 사용하도록 설계되어 있지 않다.
+            - 따라서 EntityManagerFactory는 애플리케이션 전체에서 하나를 공유하고, EntityManager는 일반적으로 요청이나 트랜잭션과 같은 작업 단위마다
+                생성해서 사용한다.
+            - 이렇게 역할을 분리한 이유는 생성 비용이 큰 JPA 실행 환경은 EntityManagerFactory가 한 번만 초기화해서 공유하고,
+                실제 Entity 관리 작업은 상대적으로 가벼운 EntityManager를 필요한 작업마다 생성해서 처리하기 위해서이다.
+    */
     @PersistenceContext
     private EntityManager em;
+
+/*
+    EntityManagerFactory 주입받는 방법
+    @PersistenceUnit
+    private EntityManagerFactory emf;
+*/
 
     /*
         메서드는 크게 Command와 Query로 구분할 수 있다.
@@ -74,6 +102,17 @@ public class MemberRepository {
 
     public Member find(Long id) {
         return em.find(Member.class, id);
+    }
+
+    public List<Member> findAll() {
+        return em.createQuery("select m from Member m", Member.class)
+                .getResultList();
+    }
+
+    public List<Member> findByName(String name) {
+        return em.createQuery("select m from Member m where m.name = :name", Member.class)
+                .setParameter("name", name)
+                .getResultList();
     }
 
 }
