@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jakarta.persistence.FetchType.*;
+
 @Entity
 @Table(name = "orders")
 @Getter @Setter
@@ -18,11 +20,16 @@ public class Order {
     @Column(name = "order_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "order")
+    /*
+        cascade = CascadeType.ALL
+            Order에 수행한 영속성 작업(persist, remove, merge 등)을 연관된 OrderItem에도 함께 전파한다.
+             따라서 Order를 저장하거나 삭제할 때 OrderItem을 각각 따로 처리하지 않아도 Order와 함께 저장되거나 삭제되도록 생명주기를 같이 관리할 수 있다.
+    */
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     /*
@@ -111,7 +118,7 @@ public class Order {
                 - 따라서 FK가 없는 Order 쪽에서는 Delivery의 존재 여부와 식별자를 알 수 없어 프록시를 바로 만들 수 없다.
                     따라서 일반적인 프록시 방식에서는 LAZY로 설정해도 Delivery 확인을 위한 조회가 발생하여 사실상 즉시 로딩처럼 동작할 수 있다.
     */
-    @OneToOne
+    @OneToOne(fetch = LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
 
@@ -135,5 +142,21 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status; // 주문 상태 [ORDER, CANCEL]
+
+    // == 연관관계 편의 메서드 == //
+    public void setMember(Member member) {
+        this.member = member;
+        member.getOrders().add(this);
+    }
+
+    public void addOrderItem(OrderItem orderItem) {
+        orderItems.add(orderItem);
+        orderItem.setOrder(this);
+    }
+
+    public void setDelivery(Delivery delivery) {
+        this.delivery = delivery;
+        delivery.setOrder(this);
+    }
 
 }

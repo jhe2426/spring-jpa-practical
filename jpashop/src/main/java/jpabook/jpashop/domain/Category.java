@@ -8,6 +8,8 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+import static jakarta.persistence.FetchType.*;
+
 @Entity
 @Getter @Setter
 public class Category {
@@ -38,7 +40,7 @@ public class Category {
         현재 parent 필드는 자식 Category에서 부모 Category를 참조하는 필드이므로 이 필드가 N:1 관계의 N쪽에 해당한다.
         양방향 1:N 관계에서는 N쪽이 FK를 관리하므로 parent 필드에 @JoinColumn을 사용해 parent_id FK를 매핑한다.
     */
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "parent_id")
     private Category parent;
 
@@ -60,4 +62,10 @@ public class Category {
     */
     @OneToMany(mappedBy = "parent")
     private List<Category> children = new ArrayList<>();
+
+    // == 연관관계 편의 메서드 == //
+    public void addChildCategory(Category children) {
+        this.children.add(children);
+        children.setParent(this);
+    }
 }
