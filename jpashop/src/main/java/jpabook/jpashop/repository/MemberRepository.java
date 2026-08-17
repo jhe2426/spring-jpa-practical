@@ -5,11 +5,13 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.PersistenceUnit;
 import jpabook.jpashop.domain.Member;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class MemberRepository {
 
     /*
@@ -30,8 +32,19 @@ public class MemberRepository {
             - 이렇게 역할을 분리한 이유는 생성 비용이 큰 JPA 실행 환경은 EntityManagerFactory가 한 번만 초기화해서 공유하고,
                 실제 Entity 관리 작업은 상대적으로 가벼운 EntityManager를 필요한 작업마다 생성해서 처리하기 위해서이다.
     */
-    @PersistenceContext
-    private EntityManager em;
+//    @PersistenceContext
+//    private EntityManager em;
+
+    /*
+        스프링 데이터 JPA가 지원을 해줘서 아래와 같이 주입이 가능
+        @Autowired
+        private EntityManager em;
+
+        public MemberRepository(EntityManager em) {
+            this.em = em;
+        }
+    */
+    private final EntityManager em;
 
 /*
     EntityManagerFactory 주입받는 방법
@@ -100,7 +113,7 @@ public class MemberRepository {
         return member.getId();
     }
 
-    public Member find(Long id) {
+    public Member findOne(Long id) {
         return em.find(Member.class, id);
     }
 
