@@ -1,0 +1,28 @@
+spring:
+
+  # 테스트는 케이스 격리된 환경에서 실행하고, 끝나면 데이터를 초기화하는 것이 좋다.
+  # 그런 면에서 메모리 DB를 사용하는 것이 가장 이상적이다.
+  # 스프링 부트는 datasource 설정이 없으면, 기본적으로 메모리 DB를 사용하고, driver-class도 현재 등록된 라이브러리를 보고 찾아준다.
+    # 추가로 ddl-auto도 create-drop모드로 동작한다. 따라서 데이터소스나 JPA 관련된 별도의 추가 설정을 하지 않아도 된다.
+#  datasource:
+#    url: jdbc:h2:mem:test
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: create
+#    properties:
+#      hibernate:
+#        # show_sql : 옵션은 System.out 에 하이버네이트 실행 SQL을 남긴다.
+##        show_sql: true
+#        format_sql: true
+
+# org.hibernate.SQL : 옵션은 logger를 통해 하이버네이트 실행 SQL을 남긴다.
+logging:
+  level:
+    org.hibernate.SQL: debug
+    # org.hibernate.orm.jdbc.bind : Hibernate가 PreparedStatement의 ? 파라미터에 실제로 어떤 값을 바인딩하는지 로그로 출력한다.
+    # 예) where m.id = ? 에서 ?에 1이 바인딩되었다면 binding parameter (1:BIGINT) <- [1] 형태로 확인할 수 있다.
+    org.hibernate.orm.jdbc.bind: trace

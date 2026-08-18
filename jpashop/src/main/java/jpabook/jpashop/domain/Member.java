@@ -153,7 +153,7 @@ import java.util.List;
           HTTP Response
                ↓
           영속성 컨텍스트 CLOSE
-    * OSVI는 Transaction을 HTTP 응답이 끝날 떄까지 유지하는 기능이 아니다. Transaction과 영속성 컨텍스트의 생명주기를 구분해야 한다.
+    * OSIV는 Transaction을 HTTP 응답이 끝날 떄까지 유지하는 기능이 아니다. Transaction과 영속성 컨텍스트의 생명주기를 구분해야 한다.
         Service의 @Transactional은 정상적으로 종료되지만 Hibernate Session은 HTTP 응답이 끝날 때까지 살아 있기 때문에 Controller에서도
         Lazy Loading을 수행할 수 있다.
 
@@ -213,6 +213,9 @@ import java.util.List;
     LazyInitializationException 해결 방법
         1. Transaction 안에서 필요한 LAZY 연관관계를 초기화한다.
         2. Fetch Join / EntityGraph 등으로 필요한 데이터를 미리 조회한다.
+            EntityGraph Ex)
+                @EntityGraph(attributePaths = {"team"}) // Member를 조회할 때 team도 같이 조회해 달라는 의미
+                Optional<Member> findById(Long id);
         3. Transaction 안에서 필요한 데이터를 DTO로 변환하여 반환한다.
         4. OSIV를 사용하여 HTTP 응답까지 Session을 유지할 수도 있다.
 
