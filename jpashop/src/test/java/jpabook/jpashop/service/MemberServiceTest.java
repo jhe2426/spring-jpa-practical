@@ -20,6 +20,24 @@ class MemberServiceTest {
     @Autowired MemberRepository memberRepository;
     @Autowired EntityManager em;
 
+    /*
+        given: 테스트를 위한 상태/데이터 준비
+        when: 테스트하려는 행동 실행
+        then: 그 행동의 결과가 예상과 같은지 검증
+            ex)
+                given
+                  나는 MSFT 주식 100주를 보유하고 있다.
+                  그리고 APPL 주식 150주를 보유하고 있다.
+                  그리고 현재 시간은 장 마감 전이다.
+
+                when
+                  MSFT 주식 20주를 매도해 달라고 요청한다.
+                
+                then
+                  나는 MSFT 주식 80주를 보유하고 있어야 한다.
+                  그리고 APPL 주식은 여전히 150주를 보유하고 있어야 한다.
+                  그리고 MSFT 주식 20주에 대한 매도 주문이 실행되어 있어야 한다.
+    */
 /*
     @Test
     @Rollback(value = false)
@@ -36,7 +54,6 @@ class MemberServiceTest {
     }
 */
 /*
-    // 실제 디비에 반영
     @Test
     @Rollback(value = false)
     public void 회원가입() throws Exception {
@@ -70,7 +87,7 @@ class MemberServiceTest {
     /*
         [왜 같은 테스트 안에서 저장한 회원을 findByName()으로 바로 조회할 수 있을까?]
         - em.persist(member)로 회원을 저장해도 트랜잭션이 커밋되기 전까지는 최종적으로 DB에 확정된 상태가 아니다.
-        - 하지만 이후 findByName()처럼 JPQL을 실해아현, 기본 FlushModeType.AUTO에서는 JPQL 실행 전에 영속성 컨텍스트의 변경사항을 DB와
+        - 하지만 이후 findByName()처럼 JPQL을 실행하면, 기본 FlushModeType.AUTO에서는 JPQL 실행 전에 영속성 컨텍스트의 변경사항을 DB와
             동기화하기 위해 자동으로 flush가 발생할 수 있다.
         - 즉, 첫 번째 회원을 persist한 뒤 두 번째의 회원의 중복 검사를 위해 findByName("kim")을 실행하면 다음과 같은 흐름으로 동작한다.
             1. 첫 번째 Member를 persist -> 영속성 컨텍스트에 저장
@@ -82,7 +99,7 @@ class MemberServiceTest {
         - 중요:
             JPQL은 DB를 조회하며, 조회 전에 AUTO flush가 발생하여 영속성 컨텍스트의 변경사항이 먼저 DB에 반영된 뒤 SELECT가 실행되는 것이다.
             flush는 SQL을 DB에 실행하여 동기화하는 것이고, commit은 그 변경사항을 최종 확장하는 것
-            따라서 테스트가 마지막에 rollback되면 INSERT SQL이 실행됐더라도 최종적으로 DB에는 데이터가 남지 않는다.
+            따라서 테스트 마지막에 rollback되면 INSERT SQL이 실행됐더라도 최종적으로 DB에는 데이터가 남지 않는다.
     */
 /*
     @Test()
