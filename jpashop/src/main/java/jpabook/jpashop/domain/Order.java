@@ -1,6 +1,7 @@
 package jpabook.jpashop.domain;
 
 import jakarta.persistence.*;
+import jpabook.jpashop.domain.type.DeliveryStatus;
 import jpabook.jpashop.domain.type.OrderStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -159,4 +160,110 @@ public class Order {
         delivery.setOrder(this);
     }
 
+    // == 생성 메서드 == //
+    /*
+        생성 메서드인데 왜 정적 팩토리 메서드로 생성했을까?
+        - 객체 생성에 필요한 초기화 작업은 생성자에서도 처리할 수 있다.
+        - 하지만 생성자는 이름이 클래스명으로 고정되기 때문에, 해당 생성자가 어떤 목적과 규칙으로 객체를 생성하는지 명확하게 표현하기 어렵다.
+        예)
+            new Order(member, delivery, orderItems)
+            위 코드만 보면 단순히 Order 객체를 생성하는 것인지, 주문 생성에 필요한 연관관계 설정, 주문 상태 초기화, 주문 시간 설정 등의 모든 규칙을
+                수행하는 생성자인지 바로 알기 어렵다.
+            반면 정적 팩토리 메서드를 사용하면 Order.create(memer, delivery, orderItems)처럼 메서드 이름을 통해
+                정상적인 주문 생성 절차를 수행한다는 의도를 명확하게 표현할 수 있다.
+            또한 주문 생성에 필요한 연관관계 설정과 초기값 설정 등의 생성 규칙을 이 메서드 한 곳에 모아 관리할 수 있다.
+            static으로 선언한 이유:
+                - createOrder()의 역할은 새로운 Order 인스턴스를 생성하는 것이다.
+                - 인스턴스 메서드는 호출하기 위해 이미 Order 객체가 존재해야 하지만, 이 메서드는 그 Order 객체 자체를 처음 생성하기 위한 메서드이므로
+                    인스턴스 메서드로 만들 수 없다.
+                - 따라서 기존 객체 없이 Order.createOrder()로 호출할 수 있도록 static 메서드로 선언한 것이다.
+            생성자의 접근 범위를 제한하고 정적 팩토리 메서드만 외부에 공개하면 애플리케이션 코드가 반드시 정해진 생성 절차를 거쳐 완전한 상태의
+                Order 객체를 생성하도록 강제할 수도 있다.
+        즉, 정적 팩토리 메서드는 단순히 생성자를 대체하기 위한 것이 아니라 객체 생성의 의도를 명확히 표현하고,
+            객체 생성 규칙과 생성 경로를 한 곳에서 관리하기 위해 사용한다.
+
+        [정적 팩토리 메서드를 사용하는 기준]
+        정적 팩토리 메서드는 단순히 생성자를 메서드로 바꾼 것이라고 보기보다, 이 타입의 객체를 하나 만들어 주거나, 적절한 인스턴스를 선택해서 반환하는 진입점이라고
+            이해하는 것이 좋다.
+        1. 새로운 객체를 생성할 때
+            예)
+                Order.createOrder(member, delivery, orderItems)
+                Money.of(1000)
+            객체 생성에 필요한 초기화 규칙, 연관관계 설정, 기본값 설정 등을 한 곳에 모아 관리하고 싶을 때 사용한다.
+            생성자도 동일한 초기화 작업을 수행할 수 있지만, 생성자는 이름이 클래스명으로 고정되어 있어 생성 목적을 표현하기 어렵다.
+            new Order(...)보다 Order.createOrder(...)가 주문을 생성한다는 의도를 더 명확하게 표현할 수 있다.
+
+        2. 기존 객체를 사용하거나 캐시에서 반환할 때
+            예)
+                Boolean.valueOf(true)를 통해 true를 나타내는 Boolean 객체 하나를 달라고 요청할 뿐, 새 객체가 생성되는지
+                    기존 객체가 재사용되는지는 알 필요가 없다.
+
+       3. 입력값에 따라 적절한 구현체 또는 하위 타입을 선택해서 반환할 때
+            예)
+                Payment.create(PaymentType.CARD) 내부에서 조건에 따라 CardPayment, CashPayment등 서로 다른 구현 객체를 선택해서 반환할 수 있다.
+                즉, 호출자는 구체적인 객체 생성 방법을 몰라도 Payment 타입의 적절한 객체를 얻을 수 있다.
+
+       4. 다른 값이나 객체로부터 현재 타입의 객체를 만들 때
+            예)
+                Member.from(memberDto)
+                MemberDto를 기반으로 member를 생성한다는 의미를 from이라는 이름으로 명확하게 표현할 수 있다.
+                이 경우 dto.toMember()처럼 인스턴스 메서드로 설계하는 것도 가능하므로, 반드시 정적 팩토리 메서드여야 하는 것은 아니다.
+                Member의 생성 규칙을 Member 클래스 내부에서 관리하고 싶다면 Member.from(dto) 형태가 자연스럽다.
+
+        [static으로 만드는 이유]
+        - 인스턴스 메서드는 order.cancel(), member.changeName()처럼 이미 존재하는 "특정 객체"가 있어야 호출할 수 있다.
+        - 반면 정적 팩토리 메서드는 Order.createOrder(...), Money.of(...), Payment.create(...)처럼 아직 사용할 객체가 정해지지 않은 상태에서
+            이 타입의 객체 하나를 만들어 주거나 적절한 객체를 선택해서 반환해 달라는 역할을 한다.
+        - 따라서 특정 인스턴스에 속하는 행동이 아니라 클래스 자체에 객체 생성/선택 책임을 두기 위해 static으로 선언한다.
+
+        [판단 기준]
+        - 이미 존재하는 이 객체가 어떤 행동을 해야 하는가? -> 인스턴스 메서드
+            예)
+                order.cancel()
+                account.withdraw()
+                member.changeName()
+        - 아직 객체가 없거나 어떤 객체를 사용할지 정해지지 않았고, 이 타입의 객체 하나를 얻고 싶은가? -> 정적 팩토리 메서드를 고려
+            예)
+                Order.createOrder(...)
+                Money.of(...)
+                Member.from(...)
+                Boolean.valueOf(...)
+                Payment.create(...)
+        즉, 정적 팩토리 메서드는 새 객체 생성뿐 아니라 기존 객체 재사용, 캐싱, 변환, 구현체 선택 등 객체를 어떻게 얻을지를 클래스 내부에 숨길 수 있다.
+        외부에서는 해당 타입의 객체를 요청하기만 하고, 실제로 새 객체를 생성할지, 기존 객체를 재사용할지, 어떤 구현체를 반환할지는 정적 팩토리 메서드 내부에서 결정한다.
+    */
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems) {
+        Order order = new Order();
+        order.setMember(member);
+        order.setDelivery(delivery);
+        for (OrderItem orderItem : orderItems) {
+            order.addOrderItem(orderItem);
+        }
+        order.setStatus(OrderStatus.ORDER);
+        order.setOrderDate(LocalDateTime.now());
+        return order;
+    }
+
+    // == 비즈니스 로직 == //
+    // 주문 취소
+    public void cancel() {
+        if (delivery.getStatus() == DeliveryStatus.COMP) {
+            throw new IllegalStateException("이미 배송 완료한 상품은 취소가 불가능합니다.");
+        }
+
+        this.setStatus(OrderStatus.CANCEL);
+        for (OrderItem orderItem : orderItems) {
+            orderItem.cancel();
+        }
+    }
+
+    // == 조회 로직 == //
+    // 전체 주문 가격 조회
+    public int getTotalPrice() {
+        int totalPrice = 0;
+        for (OrderItem orderItem : orderItems) {
+            totalPrice += orderItem.getTotalPrice();
+        }
+        return totalPrice;
+    }
 }
