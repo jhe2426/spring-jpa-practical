@@ -25,8 +25,7 @@ public class Address {
         값 타입의 기본 생성자를 public으로 두면 애플리케이션 코드에서도 new Address()처럼 값이 하나도 없는 불완전한 값 타입 객체를 생성할 수 있으므로,
         JPA는 사용할 수 있으면서 외부의 불필요한 생성을 제한할 수 있도록 protected로 선언한다.
     */
-    protected Address(String city) {
-        this.city = city;
+    protected Address() {
     }
 
     public Address(String city, String street, String zipcode) {
