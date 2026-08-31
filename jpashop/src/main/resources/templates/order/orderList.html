@@ -1,0 +1,91 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header}"/>
+<body>
+<div class="container">
+
+    <div th:replace="~{fragments/bodyHeader :: bodyHeader}"/>
+
+    <div>
+        <div>
+            <form th:object="${orderSearch}" class="form-inline">
+                <div class="form-group mb-2">
+                    <input type="text" th:field="*{memberName}" class="form-control" placeholder="회원명"/>
+                </div>
+                <div class="form-group mx-sm-1 mb-2">
+                    <select th:field="*{orderStatus}" class="form-control">
+                        <option value="">주문상태</option>
+                        <!--
+                            T()는 Thymeleaf가 사용하는 Spring EL의 타입 연산자로, HTML 표현식에서 Java 클래스 자체를 지정해
+                                enum 값, static 필드, static 메서드에 접근할 때 사용한다.
+
+                            Thymeleaf가 Java 메서드를 호출할 수 있게 한 이유는 HTML 생성 과정에서 객체의 값을 읽고, 반복·조건·표시용 변환을 수행하기 위해서다.
+                                DB 조회, 저장, 주문 취소 같은 실제 비즈니스 처리는 여전히 컨트롤러와 서비스 계층에서 해야 한다.
+                        -->
+                        <option th:each="status : ${T(jpabook.jpashop.domain.type.OrderStatus).values()}"
+                                th:value="${status}"
+                                th:text="${status}">option
+                        </option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary mb-2">검색</button>
+            </form>
+        </div>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>회원명</th>
+                <th>대표상품 이름</th>
+                <th>대표상품 주문가격</th>
+                <th>대표상품 주문수량</th>
+                <th>상태</th>
+                <th>일시</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${orders}">
+                <td th:text="${item.id}"></td>
+                <td th:text="${item.member.name}"></td>
+                <td th:text="${item.orderItems[0].item.name}"></td>
+                <td th:text="${item.orderItems[0].orderPrice}"></td>
+                <td th:text="${item.orderItems[0].count}"></td>
+                <td th:text="${item.status}"></td>
+                <td th:text="${item.orderDate}"></td>
+                <td>
+                    <a th:if="${item.status.name() == 'ORDER'}" href="#"
+                       th:href="'javascript:cancel('+${item.id}+')'"
+                       class="btn btn-danger">CANCEL</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"/>
+
+</div> <!-- /container -->
+</body>
+<script>
+    /*
+        <body>
+            <!-- 기존 화면 요소 -->
+            아래의 코드를 자바스크립트로 생성해서 추가한 메서드
+            <form method="post" action="/orders/${id}/cancel"></form>
+        </body>
+    */
+    function cancel(id) {
+    // HTML에 없던 <form> 태그를 자바스크립트로 생성
+    var form = document.createElement("form");
+    // form 태그 속성 method를 지정하는 부분
+    form.setAttribute("method", "post");
+    // form 태그 속성 action을 지정하는 부분
+    form.setAttribute("action", "/orders/" + id + "/cancel");
+    // 메모리에만 있던 form을 실제 HTML 문서의 <body> 안에 추가하는 부분
+    document.body.appendChild(form);
+    // 자바스크립트 코드로 지금 만든 form을 바로 제출하는 부분
+    form.submit();
+    }
+</script>
+</html>
