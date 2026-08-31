@@ -93,7 +93,7 @@ public class ItemController {
 */
     /*
         BookForm 객체는 화면에서만 사용할 데이터 목적으로 생성을 했으므로 서비스 계층에 해당 객체를 전달하는 것은
-        코드가 지저분해지고 좋지 않음 그래서 아래와 같이 값만 해당 form 객체를 전달하는 것이 아니라 값만 서비스 계층에 전달하는 것이 좋은 설계
+        코드가 지저분해지고 좋지 않음 그래서 아래와 같이 해당 form 객체를 전달하는 것이 아니라 값만 서비스 계층에 전달하는 것이 좋은 설계
 
         화면용 객체는 화면 요구사항에 따라 변경될 수 있고 서비스에서 사용하지 않는 필드도 포함할 수 있으므로,
         이를 서비스 계층까지 전달하면 서비스가 웹 계층에 불필요하게 의존하게 된다.
@@ -109,7 +109,7 @@ public class ItemController {
 */
     @PostMapping("/items/{itemId}/edit")
     public String updateItemV2(@PathVariable("itemId") Long itemId, @ModelAttribute("form") BookForm form) {
-        UpdateItemDto dto = new UpdateItemDto(form.getName(), form.getPrice(), form.getStockQuantity())
+        UpdateItemDto dto = new UpdateItemDto(form.getName(), form.getPrice(), form.getStockQuantity());
         itemService.updateItemV2(itemId, dto);
         return "redirect:/items";
     }
