@@ -1,5 +1,6 @@
 package jpabook.jpashop.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jpabook.jpashop.domain.value.Address;
@@ -246,6 +247,7 @@ public class Member {
             - 따라서 엔티티가 영속 상태가 된 이후 getter나 setter 등에서 컬렉션을 임의로 new ArrayList<>()로 교체하면
                 Hibernate가 관리하던 컬렉션과의 연결이 끊겨 변경 감지 및 컬렉션 상태 추적에 문제가 생길 수 있다.
     */
+    @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>();
 
