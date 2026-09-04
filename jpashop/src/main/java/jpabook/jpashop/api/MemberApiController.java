@@ -18,7 +18,7 @@ public class MemberApiController {
     private final MemberService memberService;
 
     /*
-        조회V1: 응답 값으로 엔티티를직접 외부에 노출
+        조회V1: 응답 값으로 엔티티를 직접 외부에 노출
         문제점
             - 엔티티에 프레젠테이션 계층을 위한 로직이 추가된다.
             - 기본적으로 엔티티의 모든 값이 노출된다.
