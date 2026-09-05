@@ -19,7 +19,7 @@ public class InitDb {
     private final InitService initService;
 
     /*
-        [JVM -> Jav 객체 -> Spring Bean -> @PostConstruct -> Proxy -> @Transactional 전체 흐름 정리]
+        [JVM -> Java 객체 -> Spring Bean -> @PostConstruct -> Proxy -> @Transactional 전체 흐름 정리]
         1. JVM(Java Virtual Machine)이란?
         - Java 코드는 CPU가 직접 이해할 수 있는 기계어로 바로 컴파일하지 않는다.
         - 개발자가 작성한 Java 코드
@@ -128,7 +128,7 @@ public class InitDb {
 
         - Proxy는 메서드를 호출할 때마다 새로 만들어지는 것이 아니라 Bean 생성 과정에서 필요한 경우 Transaction Proxy가 적용된 Bean 준비
             -> 이후 메서드를 호출할 때 기존 proxy를 통과
-            - @Transactional이 특정 메서드 하나에만 선언되어 있어도 해당 메서드를 실행할 때마다 Proxy를 새로 생성하지 않으
+            - @Transactional이 특정 메서드 하나에만 선언되어 있어도 해당 메서드를 실행할 때마다 Proxy를 새로 생성하지 않음
             - Spring은 Bean을 준비하는 과정에서 트랜잭션 적용 대상이 존재하면 해당 Bean에 Proxy를 적용하여 사용
             - 이후 외부에서 해당 Bean의 메서드를 호추하면 먼저 Proxy를 거치고, Proxy는 호출된 메서드가 트랜잭션 적용 대상인지 판단
 

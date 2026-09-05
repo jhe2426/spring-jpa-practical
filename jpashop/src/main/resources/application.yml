@@ -2,6 +2,10 @@ spring:
   profiles:
     active: local
 
+  jackson:
+    serialization:
+      fail-on-empty-beans: true
+
   jpa:
     hibernate:
       ddl-auto: create
