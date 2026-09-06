@@ -1,12 +1,16 @@
 package jpabook.jpashop.api;
 
 import jpabook.jpashop.domain.Order;
+import jpabook.jpashop.domain.type.OrderStatus;
+import jpabook.jpashop.domain.value.Address;
 import jpabook.jpashop.repository.OrderRepository;
 import jpabook.jpashop.repository.OrderSearch;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -40,7 +44,7 @@ public class OrderSimpleApiController {
 
         3. LAZY 강제 초기화
         - 아래 getName(), getAddress() 호출은 LAZY Proxy의 실제 데이터가 필요하다는 것을 Hibernate에 알려 SELECT를 수행하게 하고 Proxy를 강제로 초기화한다.
-        - e라면 Controller/Jackson 직렬화 시점까지 영속성 컨텍스트가 열러 있어 LAZY 로딩이 가능하지만, OSIV=false 상태에서 초기화되지 않은 Proxy를 Jackson이 접근하면
+        - OSIV=true라면 Controller/Jackson 직렬화 시점까지 영속성 컨텍스트가 열러 있어 LAZY 로딩이 가능하지만, OSIV=false 상태에서 초기화되지 않은 Proxy를 Jackson이 접근하면
             Could not initialize proxy - no session과 같은 LazyInitializationException이 발생할 수 있다.
 
         4. 양방향 연관관계 무한 직렬화 문제
@@ -57,11 +61,11 @@ public class OrderSimpleApiController {
         [OSIV(Open Session/EntityManager In View)]
         - Spring Boot의 웹 애플리케이션에서는 기본적으로 OSIV가 true로 설정된다. (spring.jpa.open-in-view=true)
         - OSIV를 사용하면 HTTP 요청이 끝날 때까지 EntityManager(Session)를 열어두기 때문에, Service의 @Transactional 범위가 끝난 이후에도 Controller나
-            JSP/Thymeleaf/Jackson 직렬화 과정에서 초기화되지 않은 LAZY 연관관계에 접근하여 추가 조회하를 할 수 있다.
+            JSP/Thymeleaf/Jackson 직렬화 과정에서 초기화되지 않은 LAZY 연관관계에 접근하여 추가 조회를 할 수 있다.
 
         [Spring Boot가 OSIV를 기본 true로 두는 이유]
         - 전통적인 Spring MVC 애플리케이션에서는 Repository/Service에서 엔티티를 조회한 뒤 JSP나 Thymeleaf 같은 View에서 연관관계의 값을 사용하는 경우가 많았다.
-        - 만약 Service 트랜잭션이 끝나는 순간 EntityManager까지 닫히면, View에서 아직 초기화되지 않은 LAZY 연관관계를 사용하는 순간  LazyInitializationException이 발생한다.
+        - 만약 Service 트랜잭션이 끝나는 순간 EntityManager까지 닫히면, View에서 아직 초기화되지 않은 LAZY 연관관계를 사용하는 순간 LazyInitializationException이 발생한다.
         - 따라서 View가 완전히 렌더링될 때까지 EntityManager를 유지하면 View 계층에서 필요한 LAZY 데이터를 자연스럽게 조회할 수 있으므로
             개발 편의성이 높아지고 LazyInitializationException도 줄어든다.
 
@@ -98,5 +102,44 @@ public class OrderSimpleApiController {
         }
         return all;
     }
+
+    @GetMapping("/api/v2/simple-orders")
+    public List<SimpleOrderDto> ordersV2() {
+        /*
+           ORDER 2개
+           N + 1 -> 1(주문) + 회원 N + 배송 N
+           - 쿼리가 총 1 + N + N번 실행이 됨
+           - order 조회 1번(order 조회 결과 수가 N이 됨)
+           - order -> member 지연 로딩 조회 N번
+           - order -> delivery 지연 로딩 조회 N번
+           - order의 결과가 2개이면 최악의 경우 쿼리 수가 1 + 2 + 2번이 실행이 된다.
+                - 지연로딩은 영속성 컨텍스트에서 조회하므로 이미 조회된 member, delivery가 영속성 컨텍스트에 존재한다면 조회 쿼리를 생략하기 때문에
+                    최악의 경우라는 것은 member나 delivery에 같은 식별자를 갖는 값들이 존재하지 않은 경우가 된다.
+        */
+        List<Order> orders = orderRepository.findAllByString(new OrderSearch());
+
+        List<SimpleOrderDto> result = orders.stream()
+                .map(SimpleOrderDto::new)
+                .toList();
+        return result;
+    }
+
+    @Data
+    static class SimpleOrderDto {
+        private Long orderId;
+        private String name;
+        private LocalDateTime orderDate;
+        private OrderStatus orderStatus;
+        private Address address;
+
+        public SimpleOrderDto(Order order) {
+            orderId = order.getId();
+            name = order.getMember().getName();
+            orderDate = order.getOrderDate();
+            orderStatus = order.getStatus();
+            address = order.getDelivery().getAddress();
+        }
+    }
+
 
 }
