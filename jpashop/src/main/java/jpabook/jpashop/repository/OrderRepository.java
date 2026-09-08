@@ -132,7 +132,7 @@ public class OrderRepository {
                 TeamA Member2
                 TeamA Member3
             객체 관점에서는 TeamA 하나이지만, DB의 JOIN 결과에서는 Member의 개수만큼 TeamA 행이 반복된다.
-            따라서 컬렉션 Fetch Join은 리 횟수는 줄어들지만 ResultSet의 행 수는 증가할 수 있다는 점을 반드시 고려해야 한다.
+            따라서 컬렉션 Fetch Join은 쿼리 횟수는 줄어들지만 ResultSet의 행 수는 증가할 수 있다는 점을 반드시 고려해야 한다.
 
 
         4. DISTINCT가 사용되었던 이유
@@ -161,7 +161,7 @@ public class OrderRepository {
         5. DISTINCT가 여전히 필요한 경우
         - Hibernate 6부터 DISTINCT 자체가 필요 없어진 것은 아니다. 일반 JOIN이나 Projection 등에서
             실제 조회 결과의 중복을 제거해야 하는 상황에서는 여전히 사용할 수 있다.
-        - 단지 컬렉션 Fetch Join을 했더니 루트 엔티티가 결과 List에서 중복되므로 DISTINCT를 붙인다.라는 용도로는
+        - 단지 컬렉션 Fetch Join을 했더니 루트 엔티티가 결과 List에서 중복되므로 DISTINCT를 붙인다라는 용도로는
             Hibernate 6 이상에서 사용할 필요가 없어진 것이다.
 
 
@@ -227,7 +227,7 @@ public class OrderRepository {
             Order 100개
             각 Order마다
                 - OrderItems 10개
-                - Coupons 5개.
+                - Coupons 5개
             두 컬렉션을 모두 Fetch Join하면 100 × 10 × 5 = 5,000행이 만들어질 수 있다.
 
             Batch Fetching으로 분리하면
@@ -263,8 +263,7 @@ public class OrderRepository {
             → 버전에 의존하지 않는 안정적인 설계를 원한다면 부모 엔티티를 먼저 페이징한 뒤  컬렉션을 Batch Fetching하는 방식을 고려
 
 
-        즉, Fetch Join은 Fetch Join으로 줄어드는 SQL 횟수와 JOIN으로 인해 증가하는 SQL 결과 행 수를 함께 비교하여
-            가장 적절한 조회 전략을 선택한다.
+        즉, Fetch Join은 Fetch Join으로 줄어드는 SQL 횟수와 JOIN으로 인해 증가하는 SQL 결과 행 수를 함께 비교하여 가장 적절한 조회 전략을 선택한다.
     */
     public List<Order> findAllWithMemberDelivery() {
         return em.createQuery(
