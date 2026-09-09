@@ -48,7 +48,7 @@ public class OrderSimpleQueryRepository {
         /*
             select new jpabook.jpashop.repository.OrderSimpleQueryDto(o)
             이런식으로 엔티티 o를 직접 생성자로 넘겨주면 해당 엔티티가 넘어가는 것이 아니라 엔티티의 식별자 Id값만 넘어가기 때문에
-            직접 일일이 엔티티의 필드 값으로 생성자에 대입을 해줘야지 원하는데로 dto에 매핑이 됨
+            직접 일일이 엔티티의 필드 값으로 생성자에 대입을 해줘야지 원하는대로 dto에 매핑이 됨
         */
         return em.createQuery(
                         "select new jpabook.jpashop.repository.order.simplequery.OrderSimpleQueryDto(o.id, m.name, o.orderDate, o.status, d.address) " +
