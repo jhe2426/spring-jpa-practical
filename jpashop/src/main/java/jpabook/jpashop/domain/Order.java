@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class Order {
             Order에 수행한 영속성 작업(persist, remove, merge 등)을 연관된 OrderItem에도 함께 전파한다.
              따라서 Order를 저장하거나 삭제할 때 OrderItem을 각각 따로 처리하지 않아도 Order와 함께 저장되거나 삭제되도록 생명주기를 같이 관리할 수 있다.
     */
+    @BatchSize(size = 1000)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 
