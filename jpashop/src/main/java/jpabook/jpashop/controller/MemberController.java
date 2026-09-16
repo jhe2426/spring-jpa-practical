@@ -3,7 +3,7 @@ package jpabook.jpashop.controller;
 import jakarta.validation.Valid;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.domain.value.Address;
-import jpabook.jpashop.service.MemberService;
+import jpabook.jpashop.service.MemberServiceOld;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberController {
 
-    private final MemberService memberService;
+    private final MemberServiceOld memberService;
 
     @GetMapping("/members/new")
     public String createForm(Model model) {

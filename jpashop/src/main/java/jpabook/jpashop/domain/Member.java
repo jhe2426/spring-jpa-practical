@@ -39,7 +39,7 @@ import java.util.List;
     Lazy Loading을 수행하려면 해당 엔티티를 관리하고 있는 Hibernate Session(영속성 컨텍스트)이 살아 있어야 한다.
     예)
     @Service
-    public class MemberService {
+    public class MemberServiceOld {
         @Transactional
         public Member findMember(Long id) {
             return memberRepository.findById(id).orElseThrow();

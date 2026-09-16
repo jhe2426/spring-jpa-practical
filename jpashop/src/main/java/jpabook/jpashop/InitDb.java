@@ -114,7 +114,7 @@ public class InitDb {
             Proxy: 실제 객체 바로 앞에서 메서드 호출을 대신 받아서 추가 기능을 수행한 뒤 실제 객체의 메서드를 호출해주는 중간 객체이다.
         - Transaction Proxy는 메서드 호출을 가로채서 트랜잭션 시작 / commit / rollback 처리를 추가해줌
         - MemberService에 @Transactional이 선언되어 있을 때 실행 흐름:
-            Controller -> Transaction Proxy -> 트랜잭션 시작 -> 실제 MemberService 메서드 실행 -> 정상 종료 -> commit
+            Controller -> Transaction Proxy -> 트랜잭션 시작 -> 실제 MemberServiceOld 메서드 실행 -> 정상 종료 -> commit
                                                                                            예외 발생 -> rollback
         - 즉, 개념적으로는 다음과 같은 역할을 수행
             transaction.begin():

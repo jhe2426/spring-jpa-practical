@@ -2,20 +2,19 @@ package jpabook.jpashop.api;
 
 import jakarta.validation.Valid;
 import jpabook.jpashop.domain.Member;
-import jpabook.jpashop.service.MemberService;
+import jpabook.jpashop.service.MemberServiceOld;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
 public class MemberApiController {
 
-    private final MemberService memberService;
+    private final MemberServiceOld memberService;
 
     /*
         조회V1: 응답 값으로 엔티티를 직접 외부에 노출
