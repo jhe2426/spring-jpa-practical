@@ -113,7 +113,7 @@ public class MemberRepositoryOld {
         return member.getId();
     }
 
-    public Member findOne(Long id) {
+    public Member findById(Long id) {
         return em.find(Member.class, id);
     }
 

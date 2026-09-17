@@ -56,6 +56,14 @@ public class OrderController {
         return "/order/orderList";
     }
 
+    @GetMapping("/orders/v2")
+    public String orderListV2(@ModelAttribute("orderSearch") OrderSearch orderSearch, Model model) {
+        List<Order> orders = orderService.findOrders(orderSearch);
+        model.addAttribute("orders", orders);
+
+        return "/order/orderList";
+    }
+
     @PostMapping("/orders/{orderId}/cancel")
     public String cancelOrder(@PathVariable("orderId") Long orderId) {
         orderService.cancelOrder(orderId);
